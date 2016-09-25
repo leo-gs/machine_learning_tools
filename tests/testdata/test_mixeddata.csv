@@ -1,0 +1,6 @@
+int,float,text,boolean
+int,float,text,boolean
+1,0.5,hi,True
+1,0.5,hello,
+7,0.000,hello,
+-4,99.1,hi,True

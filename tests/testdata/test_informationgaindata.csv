@@ -1,0 +1,6 @@
+gain_int,loss_int,nochange_int,gain_text,loss_text,nochange_text,label
+int,int,int,text,text,text,boolean
+1,1,3,hi,hi,hi,True
+2,4,3,hi,hello,hi,True
+4,1,3,hello,hello,hi,
+4,4,3,hey,hi,hi,

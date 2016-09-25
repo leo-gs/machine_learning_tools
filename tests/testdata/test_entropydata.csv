@@ -1,0 +1,6 @@
+no_entropy,high_entropy,medium_entropy
+int,float,text
+1,1.0,hi
+1,1.0,hi
+1,0.1,hi
+1,0.1,hello
