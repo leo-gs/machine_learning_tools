@@ -25,25 +25,22 @@ def is_numeric(attribute_datatype):
 
 class DataSet():
 
-	def get_column_datatype(self, attribute):
-		return next(elt for elt in self.datatypes if elt[0] == attribute)[1]
-
 	def select_columns(self, attributes):
 		datapoints = self.datapoints[attributes]
-		datatypes = [dtype for dtype in self.datatypes if dtype[0] in attributes]
-		return DataSet(datapoints=datapoints, datatypes=datatypes)
+		datatypes = [(name, dtype) for name, dtype in self.datapoints.dtype.fields.items() if name in attributes]
+		return DataSet(datapoints=datapoints,)
 
 	def get_feature_subset(self, label, m):
 		# add 1 to m to account for label
 		m += 1
-		attribute_sample = random.sample([datatype[0] for datatype in self.datatypes], m)
+		attribute_sample = random.sample([dtype for dtype in self.datapoints.dtype.names], m)
 		if label not in attribute_sample:
 			attribute_sample[-1] = label
 		return self.select_columns(attribute_sample)
 
 	# either filename or datapoints and datatypes must be given
-	def __init__(self, filename=None, datapoints=None, datatypes=None, ratio_validation=None, shuffle=False):
-		if not filename and (datapoints is None or not datatypes):
+	def __init__(self, filename=None, datapoints=None, ratio_validation=None, shuffle=False):
+		if not filename and (datapoints is None):
 			raise ValueError('Either a csv filename or an array of datapoints and list of datatypes must be given.')
 
 		if datapoints is None:
@@ -69,7 +66,7 @@ class DataSet():
 			np.random.shuffle(datapoints)
 
 		self.datapoints = datapoints
-		self.datatypes = datatypes
+
 		if ratio_validation:
 			validation_split = int((1-ratio_validation) * datapoints.shape[0]) if datapoints.shape else None
 			self.datapoints = datapoints[:validation_split]

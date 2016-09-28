@@ -21,7 +21,7 @@ class TestData(unittest.TestCase):
 		testdataset = data.DataSet(self.intdata_fname)
 		expected = np.array([(1,0,2),(5,3,3),(2,1,1)], dtype=self.intdata_dtypes)
 
-		self.assertEqual(testdataset.datatypes, self.intdata_dtypes)
+		self.assertEqual(testdataset.datapoints.dtype, self.intdata_dtypes)
 		self.assertEqual(testdataset.datapoints.shape, self.intdata_shape)
 		self.assertTrue(np.array_equal(testdataset.datapoints, expected))
 
@@ -29,22 +29,21 @@ class TestData(unittest.TestCase):
 		testdataset = data.DataSet(self.mixeddata_fname)
 		expected = np.array([(1,0.5,'hi',True),(1,0.5,'hello',False),(7,0.000,'hello',False),(-4,99.1,'hi',True)], dtype=self.mixeddata_dtypes)
 
-		self.assertEqual(testdataset.datatypes, self.mixeddata_dtypes)
+		self.assertEqual(testdataset.datapoints.dtype, self.mixeddata_dtypes)
 		self.assertEqual(testdataset.datapoints.shape, self.mixeddata_shape)
 		self.assertTrue(np.array_equal(testdataset.datapoints, expected))
 
 	def testInit_givenData(self):
 		datapoints = np.array([(1,0,2),(5,3,3),(2,1,1)], dtype=self.intdata_dtypes)
 		datatypes = self.intdata_dtypes
-		testdataset = data.DataSet(datapoints=datapoints, datatypes=datatypes)
+		testdataset = data.DataSet(datapoints=datapoints)
 		expected = data.DataSet(self.intdata_fname)
 
 		self.assertTrue(np.array_equal(testdataset.datapoints, expected.datapoints))
-		self.assertEqual(testdataset.datatypes, expected.datatypes)
+		self.assertEqual(testdataset.datapoints.dtype, expected.datapoints.dtype)
 
 	def testInit_wrongParameters(self):
-		self.assertRaises(ValueError, lambda: data.DataSet(filename=None, datapoints=None, datatypes=None))
-		self.assertRaises(ValueError, lambda: data.DataSet(filename=None, datapoints=np.array([]), datatypes=None))
+		self.assertRaises(ValueError, lambda: data.DataSet(filename=None, datapoints=None))
 
 	def testValidationMixedData(self):
 		testdataset = data.DataSet(self.mixeddata_fname, ratio_validation=0.25)
@@ -59,8 +58,8 @@ class TestData(unittest.TestCase):
 		testdataset = data.DataSet(self.mixeddata_fname).get_feature_subset('boolean', 2)
 
 		self.assertEqual(len(testdataset.datapoints[0]), 3)
-		self.assertEqual(len(testdataset.datatypes), 3)
-		self.assertTrue(('boolean','bool') in testdataset.datatypes)
+		self.assertEqual(len(testdataset.datapoints.dtype), 3)
+		self.assertTrue('boolean' in testdataset.datapoints.dtype.fields.keys())
 
 	def testPerformance(self):
 		testdataset = data.DataSet(self.performance_fname)

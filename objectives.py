@@ -30,13 +30,13 @@ def split_data(dataset, attribute, threshold):
 	# if attribute represents a numeric datatype, split into < threshold and >= threshold
 	# otherwise split into != threshold and == threshold
 	# not efficient for multiple splits
-	attribute_datatype = dataset.get_column_datatype(attribute)
+	attribute_datatype = dataset.datapoints.dtype[attribute]
 	split_datapoints = None
 	if data.is_numeric(attribute_datatype):
 		split_datapoints = (dataset.datapoints[dataset.datapoints[attribute] < threshold], dataset.datapoints[dataset.datapoints[attribute] >= threshold])
 	else:
 		split_datapoints = (dataset.datapoints[dataset.datapoints[attribute] != threshold], dataset.datapoints[dataset.datapoints[attribute] == threshold])
-	return (data.DataSet(datapoints=split_datapoints[0], datatypes=dataset.datatypes), data.DataSet(datapoints=split_datapoints[1], datatypes=dataset.datatypes))
+	return (data.DataSet(datapoints=split_datapoints[0]), data.DataSet(datapoints=split_datapoints[1]))
 
 def information_gain(counts, left_counts, right_counts):
 	total_size = sum_values(counts)
@@ -53,7 +53,7 @@ def find_optimal_split(dataset, label, attribute=None):
 	counts = count_labels(dataset, label)
 	attributes = [attribute]
 	if not attribute:
-		attributes = [elt[0] for elt in dataset.datatypes]
+		attributes = dataset.datapoints.dtype.names
 
 	optimal_threshold = None
 	optimal_attribute = None

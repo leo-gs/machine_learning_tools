@@ -10,6 +10,11 @@ import random
 For usage example tests/testcases/test_randomforest.py
 '''
 
+def certainty(n):
+	if n == 1.0:
+		return 100
+	return n/(1.0-n)
+
 def prediction(probabilities, label_type):
 	best_probability = -1
 	best_label = None
@@ -17,7 +22,8 @@ def prediction(probabilities, label_type):
 		if probability > best_probability:
 			best_probability = probability
 			best_label = label
-	return np.rec.array(best_label, dtype=[('prediction', label_type)])
+
+	return np.rec.array((best_label, certainty(best_probability)), dtype=[('prediction', label_type), ('certainty', np.dtype(float))])
 
 class Node():
 
@@ -35,7 +41,7 @@ class Node():
 			return self.probabilities
 		else:
 			next_node = None
-			if data.is_numeric(self.dataset.get_column_datatype(self.attribute)):
+			if data.is_numeric(self.dataset.datapoints.dtype[self.attribute]):
 				next_node = self.left_node if datapoint[self.attribute] < self.threshold else self.right_node
 			else:
 				next_node = self.left_node if datapoint[self.attribute] != self.threshold else self.right_node
@@ -109,7 +115,7 @@ class RandomForest():
 		if not sample_size:
 			sample_size = dataset.datapoints.shape[0]
 		datapoints = np.random.choice(dataset.datapoints, size=sample_size, replace=True)
-		return data.DataSet(datapoints=datapoints, datatypes=dataset.datatypes)
+		return data.DataSet(datapoints=datapoints)
 
 	def grow(self, max_depth=1, size=1, m=None):
 		if not m:
@@ -124,10 +130,12 @@ class RandomForest():
 	def predict(self, datapoints):
 		# create a new structured array to hold datapoints + predictions
 		fields = datapoints.dtype.names
-		predictions = np.zeros(datapoints.shape[0], dtype=[(field, datapoints.dtype[field]) for field in fields] + [('prediction', datapoints.dtype[self.label])])
+		predictions = np.zeros(datapoints.shape[0], dtype=[(field, datapoints.dtype[field]) for field in fields] + [('prediction', datapoints.dtype[self.label]), ('certainty', np.dtype(float))])
 
 		for index in range(datapoints.shape[0]):
 			datapoint = datapoints[index]
+
+			# calculate label probabilites and prediction
 			total_probabilities = {}
 			for tree in self.forest:
 				probabilities = tree.get_probabilities(datapoint)
@@ -140,5 +148,7 @@ class RandomForest():
 			
 			for field in fields:
 				predictions[index][field]
+			predictions['prediction'] = point_prediction['prediction']
+			predictions['certainty'] = point_prediction['certainty']
 
 		return predictions
