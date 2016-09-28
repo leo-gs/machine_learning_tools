@@ -7,13 +7,14 @@ import objectives
 import numpy as np
 import unittest
 
-class TestData(unittest.TestCase):
+class TestObjectives(unittest.TestCase):
 
 	def setUp(self):
 		self.mixeddata_fname = '../testdata/test_mixeddata.csv'
 		self.performance_fname = '../testdata/test_performancedata.csv'
 		self.entropy_fname = '../testdata/test_entropydata.csv'
 		self.informationgain_fname = '../testdata/test_informationgaindata.csv'
+		self.split_fname = '../testdata/test_splitdata.csv'
 
 	def testCountLabels_integerData(self):
 		testdataset = data.DataSet(self.mixeddata_fname)
@@ -103,10 +104,10 @@ class TestData(unittest.TestCase):
 
 	def testInformationGainInt_loss(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'loss_int', 3)
+		split_datasets = objectives.split_data(testdataset, 'nochange_int2', 3)
 		counts = objectives.count_labels(testdataset, 'label')
 		testinformationgain = objectives.information_gain(counts, objectives.count_labels(split_datasets[0], 'label'), objectives.count_labels(split_datasets[1], 'label'))
-		expected = -1.0
+		expected = 0.0
 
 		self.assertEqual(testinformationgain, expected)
 
@@ -137,12 +138,12 @@ class TestData(unittest.TestCase):
 
 		self.assertEqual(testinformationgain, expected)
 
-	def testInformationGainText_loss(self):
+	def testInformationGainText_noChange(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'loss_text', 'hi')
+		split_datasets = objectives.split_data(testdataset, 'nochange_text2', 'hi')
 		counts = objectives.count_labels(testdataset, 'label')
 		testinformationgain = objectives.information_gain(counts, objectives.count_labels(split_datasets[0], 'label'), objectives.count_labels(split_datasets[1], 'label'))
-		expected = -1.0
+		expected = 0.0
 
 		self.assertEqual(testinformationgain, expected)
 
@@ -151,7 +152,6 @@ class TestData(unittest.TestCase):
 		split_datasets = objectives.split_data(testdataset, 'nochange_text', 'hi')
 		counts = objectives.count_labels(testdataset, 'label')
 		testinformationgain = objectives.information_gain(counts, objectives.count_labels(split_datasets[0], 'label'), objectives.count_labels(split_datasets[1], 'label'))
-		
 		expected = 0.0
 
 		self.assertEqual(testinformationgain, expected)
@@ -165,34 +165,61 @@ class TestData(unittest.TestCase):
 
 		self.assertEqual(testinformationgain, expected)
 
-	def testFindOptimalSplit(self):
-		testdataset = data.DataSet(self.informationgain_fname)
-		result = objectives.find_optimal_split(testdataset, 'label')
-		print result
+	def testFindOptimalSplit_easySplit(self):
+		testdataset = data.DataSet(self.split_fname)
+		testresult = objectives.find_optimal_split(testdataset, 'label', attribute='easy_split')
+		expectedthreshold = 3
+		expectedattribute = 'easy_split'
+		expectedgain = 1.0
+		expected = (expectedthreshold, expectedattribute, expectedgain)
 
-	# def testCountLabelsPerformance(self):
-	# 	testdataset = data.DataSet(self.performance_fname)
-	# 	result_count_int = objectives.count_labels(testdataset, 'int')
-	# 	result_count_float = objectives.count_labels(testdataset, 'float')
-	# 	result_count_boolean = objectives.count_labels(testdataset, 'boolean')
-	# 	result_count_text = objectives.count_labels(testdataset, 'text')
-	# 	expected_count_int = {1:276480}
-	# 	expected_count_float = {0.1:276480}
-	# 	expected_count_boolean = {True:276480}
-	# 	expected_count_text = {'text':276480}
+		self.assertEqual(testresult, expected)
 
-	# 	self.assertEqual(result_count_int, expected_count_int)
-	# 	self.assertEqual(result_count_float, expected_count_float)
-	# 	self.assertEqual(result_count_boolean, expected_count_boolean)
-	# 	self.assertEqual(result_count_text, expected_count_text)
+	def testFindOptimalSplit_noSplit(self):
+		testdataset = data.DataSet(self.split_fname)
+		result = objectives.find_optimal_split(testdataset, 'label', attribute='no_split')
+		expectedthreshold = None
+		expectedattribute = None
+		expectedgain = 0
+		expected = (expectedthreshold, expectedattribute, expectedgain)
 
-	# def testEntropyPerformance(self):
-	# 	testdataset = data.DataSet(self.performance_fname)
-	# 	entropy = objectives.entropy(objectives.count_labels(testdataset, 'int'))
+		self.assertEqual(result, expected)
 
-	# def testSplitPerformance(self):
-	# 	testdataset = data.DataSet(self.performance_fname)
-	# 	splits = objectives.split_data(testdataset, 'text', 'text')
+	def testFindOptimalSplit_mediumSplit(self):
+		testdataset = data.DataSet(self.split_fname)
+		resultthreshold, resultattribute, resultgain = objectives.find_optimal_split(testdataset, 'label', attribute='medium_split')
+		expectedthreshold = 3
+		expectedattribute = 'medium_split'
+		expectedgain = 0.188
+		expected = (expectedthreshold, expectedattribute, expectedgain)
+
+		self.assertEqual(resultthreshold, expectedthreshold)
+		self.assertEqual(resultattribute, expectedattribute)
+		self.assertTrue(abs(resultgain-expectedgain) < 0.001)
+
+	def testCountLabelsPerformance(self):
+		testdataset = data.DataSet(self.performance_fname)
+		result_count_int = objectives.count_labels(testdataset, 'int')
+		result_count_float = objectives.count_labels(testdataset, 'float')
+		result_count_boolean = objectives.count_labels(testdataset, 'boolean')
+		result_count_text = objectives.count_labels(testdataset, 'text')
+		expected_count_int = {1:276480}
+		expected_count_float = {0.1:276480}
+		expected_count_boolean = {True:276480}
+		expected_count_text = {'text':276480}
+
+		self.assertEqual(result_count_int, expected_count_int)
+		self.assertEqual(result_count_float, expected_count_float)
+		self.assertEqual(result_count_boolean, expected_count_boolean)
+		self.assertEqual(result_count_text, expected_count_text)
+
+	def testEntropyPerformance(self):
+		testdataset = data.DataSet(self.performance_fname)
+		entropy = objectives.entropy(objectives.count_labels(testdataset, 'int'))
+
+	def testSplitPerformance(self):
+		testdataset = data.DataSet(self.performance_fname)
+		splits = objectives.split_data(testdataset, 'text', 'text')
 
 if __name__ == '__main__':
 	unittest.main()

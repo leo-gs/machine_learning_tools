@@ -52,8 +52,15 @@ class TestData(unittest.TestCase):
 		self.assertEqual(testdataset.datapoints.shape, (3,))
 		self.assertEqual(testdataset.validation_datapoints.shape, (1,))
 
-	def testShuffleMizedData(self):
+	def testShuffleMixedData(self):
 		testdataset = data.DataSet(self.mixeddata_fname, ratio_validation=0.25, shuffle=True)
+
+	def testGetFeatureSubset(self):
+		testdataset = data.DataSet(self.mixeddata_fname).get_feature_subset('boolean', 2)
+
+		self.assertEqual(len(testdataset.datapoints[0]), 3)
+		self.assertEqual(len(testdataset.datatypes), 3)
+		self.assertTrue(('boolean','bool') in testdataset.datatypes)
 
 	def testPerformance(self):
 		testdataset = data.DataSet(self.performance_fname)
