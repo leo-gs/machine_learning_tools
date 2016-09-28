@@ -6,6 +6,10 @@ import numpy as np
 from numpy.lib.recfunctions import append_fields
 import random
 
+'''
+For usage example tests/testcases/test_randomforest.py
+'''
+
 def prediction(probabilities, label_type):
 	best_probability = -1
 	best_label = None
