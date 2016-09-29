@@ -9,6 +9,7 @@ Second row: data types
 Each following row represents a data point (each column contains data for a attribute/label)
 
 Data Types: int, float, boolean, text
+Booleans can be represented as true/false or X/[empty cell]
 '''
 
 def convert_str_to_np_type(type_str):
@@ -55,7 +56,7 @@ class DataSet():
 
 			def handle_booleans(elt):
 				for index in bool_indices:
-					elt[index] = elt[index].lower() == 'true'
+					elt[index] = elt[index].lower() == 'true' or elt[index].lower() == 'x' or elt[index].lower() == 'yes'
 				return elt
 
 			# Reads each row as a datapoint, with each column representing an attribute/label

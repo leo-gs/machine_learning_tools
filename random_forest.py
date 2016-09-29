@@ -10,11 +10,6 @@ import random
 For usage example tests/testcases/test_randomforest.py
 '''
 
-def certainty(n):
-	if n == 1.0:
-		return 100
-	return n/(1.0-n)
-
 def prediction(probabilities, label_type):
 	best_probability = -1
 	best_label = None
@@ -23,7 +18,7 @@ def prediction(probabilities, label_type):
 			best_probability = probability
 			best_label = label
 
-	return np.rec.array((best_label, certainty(best_probability)), dtype=[('prediction', label_type), ('certainty', np.dtype(float))])
+	return np.rec.array((best_label, best_probability), dtype=[('_prediction', label_type), ('_probability', np.dtype(float))])
 
 class Node():
 
@@ -119,7 +114,7 @@ class RandomForest():
 
 	def grow(self, max_depth=1, size=1, m=None):
 		if not m:
-			m = int(math.sqrt(len(self.dataset.datatypes)))
+			m = int(math.sqrt(len(self.dataset.datapoints.dtype)))
 
 		self.forest = []
 		for i in range(size):
@@ -130,7 +125,7 @@ class RandomForest():
 	def predict(self, datapoints):
 		# create a new structured array to hold datapoints + predictions
 		fields = datapoints.dtype.names
-		predictions = np.zeros(datapoints.shape[0], dtype=[(field, datapoints.dtype[field]) for field in fields] + [('prediction', datapoints.dtype[self.label]), ('certainty', np.dtype(float))])
+		predictions = np.zeros(datapoints.shape[0], dtype=[(field, datapoints.dtype[field]) for field in fields] + [('_prediction', datapoints.dtype[self.label]), ('_probability', np.dtype(float))])
 
 		for index in range(datapoints.shape[0]):
 			datapoint = datapoints[index]
@@ -147,8 +142,8 @@ class RandomForest():
 			point_prediction = prediction(total_probabilities, datapoints.dtype[self.label])
 			
 			for field in fields:
-				predictions[index][field]
-			predictions['prediction'] = point_prediction['prediction']
-			predictions['certainty'] = point_prediction['certainty']
+				predictions[index][field] = datapoint[field]
+			predictions[index]['_prediction'] = point_prediction['_prediction']
+			predictions[index]['_probability'] = point_prediction['_probability']
 
 		return predictions

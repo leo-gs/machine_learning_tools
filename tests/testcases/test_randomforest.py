@@ -23,11 +23,6 @@ class TestRandomForest(unittest.TestCase):
 
 		self.assertEqual(testtree.root.left_node.left_node, None)
 		self.assertEqual(testtree.root.right_node.right_node, None)
-		self.assertEqual(testtree.root.left_node.probabilities.values()[0], 1.0)
-		self.assertEqual(len(testtree.root.left_node.probabilities), 1)
-		self.assertEqual(testtree.root.right_node.probabilities.values()[0], 0.5)
-		self.assertEqual(testtree.root.right_node.probabilities.values()[1], 0.5)
-		self.assertEqual(len(testtree.root.right_node.probabilities), 2)
 
 	def testGrowTree_twoSplits(self):
 		testdataset = data.DataSet(self.randomforest2_fname)
@@ -82,7 +77,7 @@ class TestRandomForest(unittest.TestCase):
 	# 	predictions = testforest.predict(testdataset.validation_datapoints)
 
 	# 	for datapoint in predictions:
-	# 		self.assertEqual(datapoint['label'], datapoint['prediction'])
+	# 		self.assertEqual(datapoint['label'], datapoint['_prediction'])
 
 if __name__ == '__main__':
 	unittest.main()
