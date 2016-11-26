@@ -51,7 +51,7 @@ class DataSet():
 		datatypes = [(name, dtype) for name, dtype in self.datapoints.dtype.fields.items() if name in attributes]
 		return DataSet(datapoints=datapoints,)
 
-	def get_feature_subset(self, label, m):
+	def get_feature_projection(self, label, m):
 		# add 1 to m to account for label
 		m += 1
 		attribute_sample = random.sample([dtype for dtype in self.datapoints.dtype.names], m)

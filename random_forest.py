@@ -62,7 +62,7 @@ class Tree():
 			node.set_leaf_probabilities()
 			return
 
-		datasubset = node.dataset.get_feature_subset(self.label, self.m)
+		datasubset = node.dataset.get_feature_projection(self.label, self.m)
 		threshold, attribute, gain = objectives.find_optimal_split(datasubset, self.label)
 		if gain == 0:
 			node.set_leaf_probabilities()
