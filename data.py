@@ -27,6 +27,25 @@ def is_numeric(attribute_datatype):
 
 class DataSet():
 
+	# either filename or datapoints and datatypes must be given
+	def __init__(self, filename=None, datapoints=None, ratio_validation=None, shuffle=False):
+		if not filename and (datapoints is None):
+			raise ValueError('Either a filename or an array of datapoints and list of datatypes must be given.')
+
+		if datapoints is None:
+			if filename.split('.')[-1] == 'csv':
+				datapoints = self.init_data_from_csv(filename)
+
+		if shuffle:
+			np.random.shuffle(datapoints)
+
+		self.datapoints = datapoints
+
+		if ratio_validation:
+			validation_split = int((1-ratio_validation) * datapoints.shape[0]) if datapoints.shape else None
+			self.datapoints = datapoints[:validation_split]
+			self.validation_datapoints = datapoints[validation_split:]
+
 	def select_columns(self, attributes):
 		datapoints = self.datapoints[attributes]
 		datatypes = [(name, dtype) for name, dtype in self.datapoints.dtype.fields.items() if name in attributes]
@@ -86,27 +105,21 @@ class DataSet():
 
 		connection.close()
 
+	def get_attribute_datatype(self, attribute):
+		return self.datapoints.dtype[attribute]
+
 	def get_attributes(self):
 		return self.datapoints.dtype.names
 
-	# either filename or datapoints and datatypes must be given
-	def __init__(self, filename=None, datapoints=None, ratio_validation=None, shuffle=False):
-		if not filename and (datapoints is None):
-			raise ValueError('Either a filename or an array of datapoints and list of datatypes must be given.')
-
-		if datapoints is None:
-			if filename.split('.')[-1] == 'csv':
-				datapoints = self.init_data_from_csv(filename)
-
-		if shuffle:
-			np.random.shuffle(datapoints)
-
-		self.datapoints = datapoints
-
-		if ratio_validation:
-			validation_split = int((1-ratio_validation) * datapoints.shape[0]) if datapoints.shape else None
-			self.datapoints = datapoints[:validation_split]
-			self.validation_datapoints = datapoints[validation_split:]
+	# selects a sample with replacement from the dataset
+	# if no sample size is given, the sample size will be the size of the entire dataset
+	def get_sample_with_replacement(self, dataset=None, sample_size=None):
+		if not dataset:
+			dataset = self
+		if not sample_size:
+			sample_size = self.datapoints.shape[0]
+		datapoints = np.random.choice(self.datapoints, size=sample_size, replace=True)
+		return DataSet(datapoints=datapoints)
 
 	def get_sorted_iterator(self, attribute=None):
 		# iterates through backwards

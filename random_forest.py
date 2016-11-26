@@ -36,7 +36,7 @@ class Node():
 			return self.probabilities
 		else:
 			next_node = None
-			if data.is_numeric(self.dataset.datapoints.dtype[self.attribute]):
+			if data.is_numeric(self.dataset.get_attribute_datatype(self.attribute)):
 				next_node = self.left_node if datapoint[self.attribute] < self.threshold else self.right_node
 			else:
 				next_node = self.left_node if datapoint[self.attribute] != self.threshold else self.right_node
@@ -56,23 +56,6 @@ class Tree():
 		self.m = m
 		self.root = Node(root_dataset, self.label)
 		self.grow(max_depth, self.root)
-
-	def __str__(self):
-		# for debugging
-		string = ''
-		remaining = [(0,self.root)]
-		while remaining:
-			level, node = remaining[0]
-			string = string + 'level' + str(level)
-			string = string + (', attribute=' + str(node.attribute) if not node.is_leaf() else '')
-			string = string + (', threshold=' + str(node.threshold) if not node.is_leaf() else '')
-			string = string + ': ' + str(node.dataset.datapoints[self.label]) + '\n'
-			if node.left_node:
-				remaining.append((level+1, node.left_node))
-			if node.right_node:
-				remaining.append((level+1, node.right_node))
-			del remaining[0]
-		return string
 			
 	def grow(self, depth_remaining, node):
 		if depth_remaining == 0:
@@ -104,21 +87,13 @@ class RandomForest():
 		self.dataset = dataset
 		self.label = label
 
-	def select_sample_with_replacement(self, dataset=None, sample_size=None):
-		if not dataset:
-			dataset = self.dataset
-		if not sample_size:
-			sample_size = dataset.datapoints.shape[0]
-		datapoints = np.random.choice(dataset.datapoints, size=sample_size, replace=True)
-		return data.DataSet(datapoints=datapoints)
-
 	def grow(self, max_depth=1, size=1, m=None):
 		if not m:
-			m = int(math.sqrt(len(self.dataset.datapoints.dtype)))
+			m = int(math.sqrt(len(self.dataset.get_attributes())))
 
 		self.forest = []
 		for i in range(size):
-			tree_data = self.select_sample_with_replacement()
+			tree_data = self.dataset.get_sample_with_replacement()
 			tree = Tree(tree_data, max_depth, self.label, m)
 			self.forest.append(tree)
 
