@@ -64,5 +64,33 @@ class TestData(unittest.TestCase):
 	def testPerformance(self):
 		testdataset = data.DataSet(self.performance_fname)
 
+	def testCountLabels_integerData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		result_count = testdataset.count_labels('int')
+		expected_count = {1:2, 7:1, -4:1}
+
+		self.assertEqual(result_count, expected_count)
+
+	def testCountLabels_floatData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		result_count = testdataset.count_labels('float')
+		expected_count = {0.5:2, 0.0:1, 99.1:1}
+
+		self.assertEqual(result_count, expected_count)
+
+	def testCountLabels_textData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		result_count = testdataset.count_labels('text')
+		expected_count = {'hi':2, 'hello':2}
+
+		self.assertEqual(result_count, expected_count)
+
+	def testCountLabels_booleanData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		result_count = testdataset.count_labels('boolean')
+		expected_count = {True:2, False:2}
+
+		self.assertEqual(result_count, expected_count)
+
 if __name__ == '__main__':
 	unittest.main()

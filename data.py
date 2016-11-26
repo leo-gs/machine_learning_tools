@@ -1,4 +1,5 @@
 import csv
+import sqlite3
 import numpy as np
 import random
 
@@ -39,6 +40,14 @@ class DataSet():
 			attribute_sample[-1] = label
 		return self.select_columns(attribute_sample)
 
+	def count_labels(self, label):
+		# label is a the name of a column in the spreadsheet
+		# this counts the number of occurences of each label value
+		counts = {}
+		for point in self.datapoints:
+			counts[point[label]] = counts.get(point[label], 0) + 1
+		return counts
+
 	def init_data_from_csv(self, filename):
 		# Parses data from a csv spreadsheet
 		reader = csv.reader(open(filename, 'rU'))
@@ -60,7 +69,10 @@ class DataSet():
 		return datapoints
 
 	def init_data_from_sqlite3(self, filename):
-		pass
+		connection = sqlite3.connect(filename)
+		cursor = connection.cursor()
+
+		connection.close()
 
 	# either filename or datapoints and datatypes must be given
 	def __init__(self, filename=None, datapoints=None, ratio_validation=None, shuffle=False):

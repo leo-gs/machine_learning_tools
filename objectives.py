@@ -3,13 +3,6 @@ import data
 import math
 import numpy as np
 
-def count_labels(dataset, label):
-	# label is a the name of a column in the spreadsheet
-	counts = {}
-	for point in dataset.datapoints:
-		counts[point[label]] = counts.get(point[label], 0) + 1
-	return counts
-
 def sum_values(counts):
 	total = 0
 	for count in counts.values():
@@ -50,7 +43,7 @@ def find_optimal_split(dataset, label, attribute=None):
 	# if attribute is not given, all attributes will be searched
 	# copy datapoints so original data is not modified
 	datapoints = np.copy(dataset.datapoints)
-	counts = count_labels(dataset, label)
+	counts = dataset.count_labels(label)
 	attributes = [attribute]
 	if not attribute:
 		attributes = dataset.datapoints.dtype.names
@@ -67,7 +60,7 @@ def find_optimal_split(dataset, label, attribute=None):
 		datapoints = np.sort(datapoints, order=attribute)
 		# "left" and "right" representing data on either side of a given split
 		# keeping a running tally is cheaper than calling split_data multiple times
-		left_counts = count_labels(dataset, label)
+		left_counts = dataset.count_labels(label)
 		right_counts = {}
 
 		index = datapoints.shape[0]-1

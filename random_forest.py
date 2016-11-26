@@ -43,7 +43,7 @@ class Node():
 			return next_node.predict(datapoint)
 
 	def set_leaf_probabilities(self):
-		label_counts = objectives.count_labels(self.dataset, self.label)
+		label_counts = self.dataset.count_labels(self.label)
 		total = float(objectives.sum_values(label_counts))
 		for label in label_counts.keys():
 			label_counts[label] = label_counts[label]/total
