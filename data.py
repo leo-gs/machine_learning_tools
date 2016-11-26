@@ -86,6 +86,9 @@ class DataSet():
 
 		connection.close()
 
+	def get_attributes(self):
+		return self.datapoints.dtype.names
+
 	# either filename or datapoints and datatypes must be given
 	def __init__(self, filename=None, datapoints=None, ratio_validation=None, shuffle=False):
 		if not filename and (datapoints is None):
@@ -104,3 +107,28 @@ class DataSet():
 			validation_split = int((1-ratio_validation) * datapoints.shape[0]) if datapoints.shape else None
 			self.datapoints = datapoints[:validation_split]
 			self.validation_datapoints = datapoints[validation_split:]
+
+	def get_sorted_iterator(self, attribute=None):
+		# iterates through backwards
+		return self.SortedIterator(self.datapoints, attribute)
+
+	class SortedIterator():
+		# if attribute == None, data will not be sorted.
+		def __init__(self, datapoints, attribute):
+			self.datapoints = np.sort(np.copy(datapoints), order=attribute) if attribute else datapoints # copy datapoints so original data is not modified
+			self.index = datapoints.shape[0]-1
+
+		def __iter__(self):
+			return self
+
+		def next(self):
+			point = self.datapoints[self.index]
+			self.index -= 1
+			return point
+
+		def peek(self):
+			return self.datapoints[self.index]
+
+		def has_more(self):
+			return self.index >= 0
+

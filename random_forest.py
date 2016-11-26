@@ -88,7 +88,7 @@ class Tree():
 		node.threshold = threshold
 		node.attribute = attribute
 
-		left_data, right_data = objectives.split_data(datasubset, attribute, threshold)
+		left_data, right_data = datasubset.split_data(attribute, threshold)
 
 		node.left_node, node.right_node = Node(left_data, self.label), Node(right_data, self.label)
 

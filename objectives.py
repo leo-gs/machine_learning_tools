@@ -29,12 +29,10 @@ def information_gain(counts, left_counts, right_counts):
 
 def find_optimal_split(dataset, label, attribute=None):
 	# if attribute is not given, all attributes will be searched
-	# copy datapoints so original data is not modified
-	datapoints = np.copy(dataset.datapoints)
 	counts = dataset.count_labels(label)
-	attributes = [attribute]
+	attributes = [attribute] # if we already know what attribute to split on
 	if not attribute:
-		attributes = dataset.datapoints.dtype.names
+		attributes = dataset.get_attributes()
 
 	optimal_threshold = None
 	optimal_attribute = None
@@ -45,36 +43,31 @@ def find_optimal_split(dataset, label, attribute=None):
 		if attribute == label:
 			continue
 
-		datapoints = np.sort(datapoints, order=attribute)
 		# "left" and "right" representing data on either side of a given split
 		# keeping a running tally is cheaper than calling split_data multiple times
-		left_counts = dataset.count_labels(label)
-		right_counts = {}
+		left_counts, right_counts = dataset.count_labels(label), {}
 
-		index = datapoints.shape[0]-1
-		while index >= 0:
-			threshold = datapoints[index][attribute]
-			point_label = datapoints[index][label]
+		iterator = dataset.get_sorted_iterator(attribute)
+
+		while iterator.has_more():
+			point = iterator.next()
+			threshold = point[attribute]
+			point_label = point[label]
 			right_counts[point_label] = right_counts.get(point_label, 0) + 1
 			left_counts[point_label] = left_counts[point_label] - 1
 			if left_counts[point_label] == 0:
 				del left_counts[point_label]
-			index -= 1
 
 			# handle duplicate attribute values
-			while index >= 0 and datapoints[index][attribute] == threshold:
-				point_label = datapoints[index][label]
+			while iterator.has_more() and iterator.peek()[attribute] == threshold:
+				point_label = iterator.next()[label]
 				right_counts[point_label] = right_counts.get(point_label, 0) + 1
 				left_counts[point_label] = left_counts[point_label] - 1
 				if left_counts[point_label] == 0:
 					del left_counts[point_label]
-				index -= 1
 
 			split_gain = information_gain(counts, left_counts, right_counts)
-			# print split_gain
-			# print left_counts
-			# print right_counts
-			# print '\n'
+
 			if split_gain > optimal_gain:
 				optimal_threshold = threshold
 				optimal_attribute = attribute

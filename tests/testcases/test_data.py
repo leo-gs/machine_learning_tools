@@ -120,5 +120,57 @@ class TestData(unittest.TestCase):
 		self.assertTrue(np.array_equal(splits[0].datapoints['text'], np.array(['hello', 'hello'])))
 		self.assertTrue(np.array_equal(splits[1].datapoints['text'], np.array(['hi', 'hi'])))
 
+	def testIterator_iterate(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		iterator = testdataset.get_sorted_iterator()
+
+		count = 0
+		while iterator.has_more():
+			iterator.next()
+			count += 1
+		self.assertEqual(count, 4)
+
+	def testIterator_sortInt(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		attribute = 'int'
+		iterator = testdataset.get_sorted_iterator(attribute)
+
+		results = []
+		expected = [7, 1, 1, -4]
+
+		while iterator.has_more():
+			point = iterator.next()
+			results.append(point[attribute])
+
+		self.assertEqual(results, expected)
+
+	def testIterator_sortText(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		attribute = 'text'
+		iterator = testdataset.get_sorted_iterator(attribute)
+
+		results = []
+		expected = ['hi', 'hi', 'hello', 'hello']
+
+		while iterator.has_more():
+			point = iterator.next()
+			results.append(point[attribute])
+
+		self.assertEqual(results, expected)
+
+	def testIterator_sortBoolean(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		attribute = 'boolean'
+		iterator = testdataset.get_sorted_iterator(attribute)
+
+		results = []
+		expected = [True, True, False, False]
+
+		while iterator.has_more():
+			point = iterator.next()
+			results.append(point[attribute])
+
+		self.assertEqual(results, expected) 
+
 if __name__ == '__main__':
 	unittest.main()
