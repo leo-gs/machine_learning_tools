@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 '''
-File format: input is a csv file
+File format: input is a csv file or sqlite3 file
 First row: data attribute titles (should be unique)
 Second row: data types
 Each following row represents a data point (each column contains data for a attribute/label)
@@ -39,29 +39,37 @@ class DataSet():
 			attribute_sample[-1] = label
 		return self.select_columns(attribute_sample)
 
+	def init_data_from_csv(self, filename):
+		# Parses data from a csv spreadsheet
+		reader = csv.reader(open(filename, 'rU'))
+		# The first row should be the column titles/attributes
+		# The second row should be the types of the column's data ('int', 'float', 'boolean', 'text')
+		attributes = reader.next()
+		dtypes = [str(convert_str_to_np_type(elt)) for elt in reader.next()]
+		datatypes = [(attr, dtype) for attr, dtype in zip(attributes, dtypes)]
+		bool_indices = [i for i in range(len(dtypes)) if dtypes[i] == np.dtype(bool)]
+
+		def handle_booleans(elt):
+			for index in bool_indices:
+				elt[index] = elt[index].lower() == 'true' or elt[index].lower() == 'x' or elt[index].lower() == 'yes'
+			return elt
+
+		# Reads each row as a datapoint, with each column representing an attribute/label
+		data = [tuple(handle_booleans(elt)) for elt in list(reader)]
+		datapoints = np.array(data, dtype=datatypes)
+		return datapoints
+
+	def init_data_from_sqlite3(self, filename):
+		pass
+
 	# either filename or datapoints and datatypes must be given
 	def __init__(self, filename=None, datapoints=None, ratio_validation=None, shuffle=False):
 		if not filename and (datapoints is None):
-			raise ValueError('Either a csv filename or an array of datapoints and list of datatypes must be given.')
+			raise ValueError('Either a filename or an array of datapoints and list of datatypes must be given.')
 
 		if datapoints is None:
-			# Parses data from a csv spreadsheet
-			reader = csv.reader(open(filename, 'rU'))
-			# The first row should be the column titles/attributes
-			# The second row should be the types of the column's data ('int', 'float', 'boolean', 'text')
-			attributes = reader.next()
-			dtypes = [str(convert_str_to_np_type(elt)) for elt in reader.next()]
-			datatypes = [(attr, dtype) for attr, dtype in zip(attributes, dtypes)]
-			bool_indices = [i for i in range(len(dtypes)) if dtypes[i] == np.dtype(bool)]
-
-			def handle_booleans(elt):
-				for index in bool_indices:
-					elt[index] = elt[index].lower() == 'true' or elt[index].lower() == 'x' or elt[index].lower() == 'yes'
-				return elt
-
-			# Reads each row as a datapoint, with each column representing an attribute/label
-			data = [tuple(handle_booleans(elt)) for elt in list(reader)]
-			datapoints = np.array(data, dtype=datatypes)
+			if filename.split('.')[-1] == 'csv':
+				datapoints = self.init_data_from_csv(filename)
 
 		if shuffle:
 			np.random.shuffle(datapoints)
