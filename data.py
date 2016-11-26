@@ -1,5 +1,4 @@
 import csv
-import sqlite3
 import numpy as np
 import random
 
@@ -51,7 +50,7 @@ class DataSet():
 		datatypes = [(name, dtype) for name, dtype in self.datapoints.dtype.fields.items() if name in attributes]
 		return DataSet(datapoints=datapoints,)
 
-	def get_feature_projection(self, label, m):
+	def get_random_feature_projection(self, label, m):
 		# add 1 to m to account for label
 		m += 1
 		attribute_sample = random.sample([dtype for dtype in self.datapoints.dtype.names], m)
@@ -99,17 +98,18 @@ class DataSet():
 		datapoints = np.array(data, dtype=datatypes)
 		return datapoints
 
-	def init_data_from_sqlite3(self, filename):
-		connection = sqlite3.connect(filename)
-		cursor = connection.cursor()
-
-		connection.close()
-
 	def get_attribute_datatype(self, attribute):
 		return self.datapoints.dtype[attribute]
 
 	def get_attributes(self):
 		return self.datapoints.dtype.names
+
+	def get_column_vector(self, attribute):
+		return np.array(self.datapoints[attribute])
+
+	# return number of points in dataset.datapoints
+	def __len__(self):
+		return self.datapoints.shape[0]
 
 	# selects a sample with replacement from the dataset
 	# if no sample size is given, the sample size will be the size of the entire dataset

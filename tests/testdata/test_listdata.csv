@@ -1,0 +1,6 @@
+extra,text,label
+float,list:text,boolean
+1.0,a|b|c|d|e,True
+1.0,a|b|c|d,True
+1.5,a|b|c,False
+1.0,a|b|c|e,False

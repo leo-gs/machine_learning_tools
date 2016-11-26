@@ -54,8 +54,8 @@ class TestData(unittest.TestCase):
 	def testShuffleMixedData(self):
 		testdataset = data.DataSet(self.mixeddata_fname, ratio_validation=0.25, shuffle=True)
 
-	def testGetFeatureSubset(self):
-		testdataset = data.DataSet(self.mixeddata_fname).get_feature_projection('boolean', 2)
+	def testGetRandomFeatureProjection(self):
+		testdataset = data.DataSet(self.mixeddata_fname).get_random_feature_projection('boolean', 2)
 
 		self.assertEqual(len(testdataset.datapoints[0]), 3)
 		self.assertEqual(len(testdataset.datapoints.dtype), 3)
