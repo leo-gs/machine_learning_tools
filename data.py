@@ -48,6 +48,18 @@ class DataSet():
 			counts[point[label]] = counts.get(point[label], 0) + 1
 		return counts
 
+	def split_data(self, attribute, threshold):
+		# if attribute represents a numeric datatype, split into < threshold and >= threshold
+		# otherwise split into != threshold and == threshold
+		# not efficient for multiple splits
+		attribute_datatype = self.datapoints.dtype[attribute]
+		split_datapoints = None
+		if is_numeric(attribute_datatype):
+			split_datapoints = (self.datapoints[self.datapoints[attribute] < threshold], self.datapoints[self.datapoints[attribute] >= threshold])
+		else:
+			split_datapoints = (self.datapoints[self.datapoints[attribute] != threshold], self.datapoints[self.datapoints[attribute] == threshold])
+		return (DataSet(datapoints=split_datapoints[0]), DataSet(datapoints=split_datapoints[1]))
+
 	def init_data_from_csv(self, filename):
 		# Parses data from a csv spreadsheet
 		reader = csv.reader(open(filename, 'rU'))

@@ -37,37 +37,9 @@ class TestObjectives(unittest.TestCase):
 
 		self.assertTrue(abs(result-expected) < 0.001)
 
-	def testSplit_integerData(self):
-		testdataset = data.DataSet(self.mixeddata_fname)
-		splits = objectives.split_data(testdataset, 'int', 0)
-
-		self.assertTrue(np.array_equal(splits[0].datapoints['int'], np.array([-4])))
-		self.assertTrue(np.array_equal(splits[1].datapoints['int'], np.array([1, 1, 7])))
-
-	def testSplit_floatDataNoSplit(self):
-		testdataset = data.DataSet(self.mixeddata_fname)
-		splits = objectives.split_data(testdataset, 'float', -1.0)
-
-		self.assertTrue(np.array_equal(splits[0].datapoints['float'], np.array([])))
-		self.assertTrue(np.array_equal(splits[1].datapoints['float'], np.array([0.5, 0.5, 0.0, 99.1])))
-
-	def testSplit_booleanData(self):
-		testdataset = data.DataSet(self.mixeddata_fname)
-		splits = objectives.split_data(testdataset, 'boolean', True)
-
-		self.assertTrue(np.array_equal(splits[0].datapoints['boolean'], np.array([False, False])))
-		self.assertTrue(np.array_equal(splits[1].datapoints['boolean'], np.array([True, True])))
-
-	def testSplit_textData(self):
-		testdataset = data.DataSet(self.mixeddata_fname)
-		splits = objectives.split_data(testdataset, 'text', 'hi')
-
-		self.assertTrue(np.array_equal(splits[0].datapoints['text'], np.array(['hello', 'hello'])))
-		self.assertTrue(np.array_equal(splits[1].datapoints['text'], np.array(['hi', 'hi'])))
-
 	def testInformationGainInt_gain(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'gain_int', 3)
+		split_datasets = testdataset.split_data('gain_int', 3)
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 1.0
@@ -76,7 +48,7 @@ class TestObjectives(unittest.TestCase):
 
 	def testInformationGainInt_loss(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'nochange_int2', 3)
+		split_datasets = testdataset.split_data('nochange_int2', 3)
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 0.0
@@ -85,7 +57,7 @@ class TestObjectives(unittest.TestCase):
 
 	def testInformationGainInt_noChange(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'nochange_int', 3)
+		split_datasets = testdataset.split_data('nochange_int', 3)
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 0.0
@@ -93,8 +65,8 @@ class TestObjectives(unittest.TestCase):
 		self.assertEqual(testinformationgain, expected)
 
 	def testInformationGainInt_singleDatapoint(self):
-		testdataset = objectives.split_data(data.DataSet(self.informationgain_fname), 'gain_int', 1)[0]
-		split_datasets = objectives.split_data(testdataset, 'nochange_int', 3)
+		testdataset = data.DataSet(self.informationgain_fname).split_data('gain_int', 1)[0]
+		split_datasets = testdataset.split_data('nochange_int', 3)
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 0.0
@@ -103,7 +75,7 @@ class TestObjectives(unittest.TestCase):
 
 	def testInformationGainText_gain(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'gain_text', 'hi')
+		split_datasets = testdataset.split_data('gain_text', 'hi')
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 1.0
@@ -112,7 +84,7 @@ class TestObjectives(unittest.TestCase):
 
 	def testInformationGainText_noChange(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'nochange_text2', 'hi')
+		split_datasets = testdataset.split_data('nochange_text2', 'hi')
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 0.0
@@ -121,7 +93,7 @@ class TestObjectives(unittest.TestCase):
 
 	def testInformationGainText_noChange(self):
 		testdataset = data.DataSet(self.informationgain_fname)
-		split_datasets = objectives.split_data(testdataset, 'nochange_text', 'hi')
+		split_datasets = testdataset.split_data('nochange_text', 'hi')
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 0.0
@@ -129,8 +101,8 @@ class TestObjectives(unittest.TestCase):
 		self.assertEqual(testinformationgain, expected)
 
 	def testInformationGainText_singleDatapoint(self):
-		testdataset = objectives.split_data(data.DataSet(self.informationgain_fname), 'gain_int', 1)[0]
-		split_datasets = objectives.split_data(testdataset, 'nochange_text', 1)
+		testdataset = data.DataSet(self.informationgain_fname).split_data('gain_int', 1)[0]
+		split_datasets = testdataset.split_data('nochange_text', 1)
 		counts = testdataset.count_labels('label')
 		testinformationgain = objectives.information_gain(counts, split_datasets[0].count_labels('label'), split_datasets[1].count_labels('label'))
 		expected = 0.0
@@ -191,7 +163,7 @@ class TestObjectives(unittest.TestCase):
 
 	def testSplitPerformance(self):
 		testdataset = data.DataSet(self.performance_fname)
-		splits = objectives.split_data(testdataset, 'text', 'text')
+		splits = testdataset.split_data('text', 'text')
 
 if __name__ == '__main__':
 	unittest.main()

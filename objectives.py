@@ -19,18 +19,6 @@ def entropy(counts, size=None):
 		total_entropy += entropy
 	return total_entropy
 
-def split_data(dataset, attribute, threshold):
-	# if attribute represents a numeric datatype, split into < threshold and >= threshold
-	# otherwise split into != threshold and == threshold
-	# not efficient for multiple splits
-	attribute_datatype = dataset.datapoints.dtype[attribute]
-	split_datapoints = None
-	if data.is_numeric(attribute_datatype):
-		split_datapoints = (dataset.datapoints[dataset.datapoints[attribute] < threshold], dataset.datapoints[dataset.datapoints[attribute] >= threshold])
-	else:
-		split_datapoints = (dataset.datapoints[dataset.datapoints[attribute] != threshold], dataset.datapoints[dataset.datapoints[attribute] == threshold])
-	return (data.DataSet(datapoints=split_datapoints[0]), data.DataSet(datapoints=split_datapoints[1]))
-
 def information_gain(counts, left_counts, right_counts):
 	total_size = sum_values(counts)
 	left_size = sum_values(left_counts)

@@ -92,5 +92,33 @@ class TestData(unittest.TestCase):
 
 		self.assertEqual(result_count, expected_count)
 
+	def testSplit_integerData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		splits = testdataset.split_data('int', 0)
+
+		self.assertTrue(np.array_equal(splits[0].datapoints['int'], np.array([-4])))
+		self.assertTrue(np.array_equal(splits[1].datapoints['int'], np.array([1, 1, 7])))
+
+	def testSplit_floatDataNoSplit(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		splits = testdataset.split_data('float', -1.0)
+
+		self.assertTrue(np.array_equal(splits[0].datapoints['float'], np.array([])))
+		self.assertTrue(np.array_equal(splits[1].datapoints['float'], np.array([0.5, 0.5, 0.0, 99.1])))
+
+	def testSplit_booleanData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		splits = testdataset.split_data('boolean', True)
+
+		self.assertTrue(np.array_equal(splits[0].datapoints['boolean'], np.array([False, False])))
+		self.assertTrue(np.array_equal(splits[1].datapoints['boolean'], np.array([True, True])))
+
+	def testSplit_textData(self):
+		testdataset = data.DataSet(self.mixeddata_fname)
+		splits = testdataset.split_data('text', 'hi')
+
+		self.assertTrue(np.array_equal(splits[0].datapoints['text'], np.array(['hello', 'hello'])))
+		self.assertTrue(np.array_equal(splits[1].datapoints['text'], np.array(['hi', 'hi'])))
+
 if __name__ == '__main__':
 	unittest.main()
