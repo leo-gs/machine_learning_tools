@@ -21,4 +21,8 @@ class LinearRegression():
 		b1 = ((xs - mean_x) * (ys - mean_y)).sum() / ((xs - mean_x) ** 2).sum()
 		b0 = (float(ys.sum()) / n) - b1 * (float(xs.sum()) / n)
 
-		return (b1, b0)
+		self.b1 = b1
+		self.b0 = b0
+
+	def predict(self, value):
+		return self.b1 * value + self.b0
